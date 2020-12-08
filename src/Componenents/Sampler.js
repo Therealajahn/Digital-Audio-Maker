@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import axios from 'axios';
-import cuckoo from './Samples/cuckoo.ogg';
+import cuckoo from './Samples/cuckoo.ogg'
 
 
 

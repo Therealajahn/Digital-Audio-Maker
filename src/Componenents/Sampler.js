@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect,useState } from 'react';
 // import axios from 'axios';
 
 
@@ -6,33 +6,33 @@ import { useEffect } from 'react';
 
 
 function Sampler() {
-  useEffect(()=>{  
-  const audioContext = new (AudioContext || window.webkitAudioContext)();
-    let sample;
+  
+  async function importFetchAndDecodeSample(audioContext){
+    
+      const sampleURL = await import('./Samples/cuckoo.ogg'); 
+      const response = await fetch(sampleURL.default);
+      const arrayBuffer = await response.arrayBuffer();
+      console.log('arrayBuffer', arrayBuffer)
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer); 
+      console.log('audioBuffer', audioBuffer)
+      return audioBuffer;   
+    }
 
-    import('./Samples/cuckoo.ogg')
-    .then(url => { 
-      //to get response from audiofile
-      fetch(url.default)                                         
-      .then(response =>{
-         //to get array data of audio file 
-        return response.arrayBuffer();
-      })
-      .then(buffer => {
-         //resamples array buffer data to AC's sampling rate
-        return audioContext.decodeAudioData(buffer);
-      })
-      .then(decoded => {
-        //to create an audio node for the audio
-        sample = audioContext.createBufferSource();
-        sample.buffer = decoded;
-        //to connect to speakers
-        // sample.connect(audioContext.destination);
-        //to start audio 
-        // sample.start();
-      })
+  function playSample(sample,audioContext){ 
+      const source = audioContext.createBufferSource();
+      source.connect(audioContext.destination);
+      source.buffer = sample;
+      source.start();
+  }
+  
+  useEffect(()=>{  
+    const audioContext = new (AudioContext || window.webkitAudioContext)(); 
+    importFetchAndDecodeSample(audioContext)
+    .then(sample=>{
+      // playSample(sample,audioContext)
     })
-  },[]);   
+  },[]); 
+  
 
     return(
         <div className="Sampler"></div>
